@@ -7,16 +7,12 @@
     /* Creating route instance */
     $route = new Route();
 
-    $route->add("/id/{id}/mateus/{mateus}" , "GET", "Home@index");
-    
-    /* $route->add("/userid/{user_id}", "POST", "Home@contact"); */
-    
-    $route->add("/username/{user_name}", "POST", function($user_name){
-        echo $user_name;
+    $route->add("/", "GET", function(){
+        include_once("home.php");
     });
+
+    $route->add("/id/{id}/name/{name}" , "GET", "Home@info");
     
-    $route->add("/redirect", "POST", function(){
-        include_once("html.html");
+    $route->add("/name/{name}", "POST", function($name){
+        echo $name;
     });
-    
-    /* $route->showRoutes(); */

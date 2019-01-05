@@ -137,7 +137,7 @@
                         }
                     }
 
-                    var_dump($parameters);
+                    //var_dump($parameters);
 
                     if($errors === 0)
                     {
