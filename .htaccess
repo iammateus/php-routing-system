@@ -1,0 +1,14 @@
+#This file is required to the library works
+
+#Turn on RewriteEngine
+RewriteEngine On
+
+#Setting the site base
+RewriteBase /RoutingSystem/
+
+#Conditions if the request is for a file the redirect will not done
+RewriteCond %{REQUEST_FILENAME} !-f 
+RewriteCond %{REQUEST_FILENAME} !-d 
+
+#The Requested URI will be sent in the get uri variable
+RewriteRule ^(.+)$ index.php?uri=$1 [QSA,L]
