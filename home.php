@@ -8,7 +8,7 @@
     <!-- <link rel="stylesheet" type="text/css" media="screen" href="main.css" /> -->
     <!-- <script src="main.js"></script> -->
 </head>
-<body style="background: #000; color: #FFF;">
+<body style="background: #333; color: #FFF;">
     <h1>Hi, this is Home</h1>
 </body>
 </html>
