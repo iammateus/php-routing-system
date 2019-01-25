@@ -13,26 +13,28 @@
         //Adds new route
         public function add($uri, $requestType, $method)
         {
-            //@TODO Create script to check if there's a route with the same parameters
+			//Gets params from URI
+			$parametersArray = $this->getParamsFromURI($uri);
+			
+			//Checks if URI is unique
+            $this->checkIfRouteIsUnique($parametersArray, $requestType);
 
-            //Gets params from URI
-            $parametersArray = $this->getParamsFromURI($uri);
-
-            $parameters = $this->parseParams($parametersArray, $requestType);
+			//Validates URI and creates an object of params to the route 
+			$parameters = $this->parseParams($parametersArray, $requestType);
             
-            /* Mounts route and adds it in array  */
+            //Mounts route object and adds it in routes list
             $this->_routes[] = [
                 "uri" => $uri,
                 "parameters" => $parameters,
                 "requestType" => $requestType,
                 "action" => $method
             ];
-
         }
 
-        //Submits route
-        public function submit($requestedUri, $request_Type){
-            
+		//Submits route
+		//@TODO finish this method
+        public function submit($requestedUri, $request_Type)
+        {
             $parametersSent = explode("/", $requestedUri);
 
             while(false !== ($index = array_search("", $parametersSent)))
@@ -87,12 +89,14 @@
         } 
 
         //@TODO Create a method to display all set routes
-        public function showRoutes(){
+        public function showRoutes()
+        {
 
             var_dump($this->_routes);
 
         }
 
+		//Gets route params from URL
         private function getParamsFromURI($uri)
         {
             if(empty($uri))
@@ -113,14 +117,18 @@
             return $parametersArray;
         }
 
-        private function isRouteUnique($parametersArray, $requestType){
+		//Checks whether route is unique
+        private function checkIfRouteIsUnique($parametersArray, $requestType)
+        {
             //Checks if there's already a route using the same arguments
             $routes = $this->_routes;
 
+			//Not variable params
             $clean_parameters = [];
 
             foreach($parametersArray as $key => $parameter)
             {
+				//If the current param is a variable pushes it to $clean_parameters
                 if(strpos($parameter, '{') === false)
                 {
                     $clean_parameters[] = $parameter;
@@ -129,19 +137,23 @@
 
             foreach($routes as $key => $route) 
             {
-                if(count($route["parameters"]) === count($parametersArray)){
-                
-                    $route_clean_parameters = [];
-
+				//If existing route has the same quantity of params of the new route:
+                if(count($route["parameters"]) === count($parametersArray))
+                {
+					$route_clean_parameters = [];
+					
                     foreach($route["parameters"] as $key => $parameter)
                     {
                         if(strpos($parameter, '{') === false)
                         {
-                            $route_clean_parameters[] = $parameter;
+							$route_clean_parameters[] = $parameter;
                         }
                     }
-
-                    if($route_clean_parameters === $clean_parameters && $route["requestType"] === $requestType){
+					
+					//Checks if not variable params of existing route is the same of the new route
+                    if($route_clean_parameters === $clean_parameters && $route["requestType"] === $requestType)
+                    {
+						//If so displays an error
                         echo "There's another route which already uses the same parameters with the $requestType request type: " . $route["uri"];
                         exit;
                     }
@@ -150,12 +162,9 @@
             }
         }
 
+		//Create a object of params and validates params in the process
         private function parseParams($parametersArray, $requestType)
         {
-            //@TODO place this call in the best place possible
-            //Calls the function which checks whether route is unique or not
-            $this->isRouteUnique($parametersArray, $requestType);
-
             //Creates route parameters array and checks whether the route is valid
             $parameters = [];
 

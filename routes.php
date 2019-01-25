@@ -7,13 +7,9 @@
     /* Creating route instance */
     $route = new Route();
 
-    
     $route->add("/", "GET", function(){
         include_once("home.php");
     });
-   
-
-    /* $route->add("/id/{id}/name/{name}" , "GET", "Home@info"); */
     
     $route->add("/name/{name}/lastname/{lastname}", "POST", function($name, $lastname){
         echo $name." ".$lastname;
