@@ -8,7 +8,7 @@
     $route = new Route();
 
     $route->add("/", "GET", function(){
-        include_once("home.php");
+        include_once("views/home.php");
     });
     
     $route->add("/name/{name}/lastname/{lastname}", "POST", function($name, $lastname){

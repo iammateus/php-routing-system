@@ -1,6 +1,6 @@
 <?php
 
-    include 'routes.php';
+    include 'route/routes.php';
 
     //Gets requested URI
     $requested_uri = isset($_GET["uri"]) ? $_GET["uri"] : "/";
