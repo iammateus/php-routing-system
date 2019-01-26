@@ -8,5 +8,6 @@
     //Gets request type
     $request_type = $_SERVER['REQUEST_METHOD'];
 
-    //Submits Route
+	//Submits Route
+	//$route->showRoutes();
     $route->submit($requested_uri, $request_type);

@@ -3,8 +3,8 @@
     /* 
         This class is created by Mateus Soares <https://github.com/mateussoares1997> 
         version: 0.0.1
-    */
-
+	*/
+	
     class Route{
 
         //Routes list
@@ -35,16 +35,11 @@
 		//@TODO finish this method
         public function submit($requestedUri, $request_Type)
         {
-            $parametersSent = explode("/", $requestedUri);
-
-            while(false !== ($index = array_search("", $parametersSent)))
-            {
-                unset($parametersSent[$index]);
-            }
-
+			//Cleans empty params from a param array
+			$parametersSent = $this->getParamsFromURI($requestedUri);
+			
             foreach($this->_routes as $key => $route)
             {
-
                 /* TODO make checking of route params and create "do action" */
 
                 //Checks whether the current loop's route has the same quantity of arguments of requested url 
@@ -66,7 +61,12 @@
                                 $errors++;
                             }
                         }
-                    }
+					}
+					
+					if($route["requestType"] !== $request_Type)
+					{
+						$errors++;
+					}
 
                     //var_dump($parameters);
 
@@ -74,17 +74,20 @@
                     {
                         if(is_callable($route["action"]))
                         {
-                            call_user_func_array($route["action"], $parameters);
+							call_user_func_array($route["action"], $parameters);
+							exit();
                         }
                         else
                         {
-                            //@todo create script to understand string actions 
+                            exit();
                         }
                     }
                     
                 }
 
-            }
+			}
+			
+			echo "ERROR: 404";
 
         } 
 
@@ -94,7 +97,7 @@
 
             var_dump($this->_routes);
 
-        }
+		}
 
 		//Gets route params from URL
         private function getParamsFromURI($uri)
