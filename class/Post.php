@@ -1,6 +1,6 @@
 <?php
 
-	class Sample{
+	class Post{
 
 		public function showName($name){
 

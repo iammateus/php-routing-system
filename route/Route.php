@@ -1,8 +1,7 @@
 <?php
-
     /* 
-        This class is created by Mateus Soares <https://github.com/mateussoares1997> 
-        version: 0.0.1
+     *   This class is created by Mateus Soares <https://github.com/mateussoares1997> 
+     *   version: 0.0.1
 	*/
 	
     class Route{
@@ -13,46 +12,43 @@
         //Adds new route
         public function add($uri, $requestType, $method)
         {
-			//Gets params from URI
-			$parametersArray = $this->getParamsFromURI($uri);
+			//Gets params from URL
+			$parametersArray = $this->getParamsFromURL($uri);
+
+			//Validates route structure
+			$this->validateRouteSintax($parametersArray, $uri);
 			
 			//Checks if URI is unique
             $this->checkIfRouteIsUnique($parametersArray, $requestType);
 
-			//Validates URI and creates an object of params to the route 
-			$parameters = $this->parseParams($parametersArray, $requestType);
-            
-            //Mounts route object and adds it in routes list
+			//Mounts route object and adds it in routes list
             $this->_routes[] = [
                 "uri" => $uri,
-                "parameters" => $parameters,
+                "parameters" => $parametersArray,
                 "requestType" => $requestType,
                 "action" => $method
             ];
         }
 
 		//Submits route
-		//@TODO finish this method
         public function submit($requestedUri, $request_Type)
         {
-			//Cleans empty params from a param array
-			$parametersSent = $this->getParamsFromURI($requestedUri);
+			$parametersSent = $this->getParamsFromURL($requestedUri);
 			
             foreach($this->_routes as $key => $route)
             {
-                /* TODO make checking of route params and create "do action" */
-
                 //Checks whether the current loop's route has the same quantity of arguments of requested url 
                 if(count($route["parameters"]) === count($parametersSent))
                 {
-
                     $errors = 0;
-                    $parameters = [];
+					$parameters = [];
+					
                     foreach($route["parameters"] as $key => $route_parameter)
                     {
                         if(false !== strrpos($route_parameter, "{"))
                         {
-                            $parameters[str_replace("{ ","",$route_parameter)] = $parametersSent[$key];
+							//Keeps sent route variable params values
+							$parameters[str_replace("{ ","",$route_parameter)] = $parametersSent[$key];
                         }
                         else
                         {
@@ -60,7 +56,7 @@
                             {
                                 $errors++;
                             }
-                        }
+						}
 					}
 					
 					if($route["requestType"] !== $request_Type)
@@ -68,39 +64,38 @@
 						$errors++;
 					}
 
-                    //var_dump($parameters);
-
+					//if $errors equals to 0 it means that the current route and the requested route match in structure and request method
                     if($errors === 0)
                     {
                         if(is_callable($route["action"]))
                         {
 							call_user_func_array($route["action"], $parameters);
-							exit();
+							
+							exit;
                         }
                         else
                         {
-                            exit();
+							//$this->callExternalClassAction($route["action"], $parameters);
+
+                            exit;
                         }
                     }
                     
                 }
-
 			}
 			
-			echo "ERROR: 404";
+			include_once("view/404.php");
 
         } 
 
         //@TODO Create a method to display all set routes
         public function showRoutes()
         {
-
             var_dump($this->_routes);
-
 		}
 
 		//Gets route params from URL
-        private function getParamsFromURI($uri)
+        private function getParamsFromURL($uri)
         {
             if(empty($uri))
             {
@@ -115,123 +110,98 @@
             while(false !== ($index = array_search("", $parametersArray)))
             {
                 unset($parametersArray[$index]);
-            }
+			}
+
+			//Reseting array indexing
+			$parametersArray = array_values($parametersArray);
 
             return $parametersArray;
         }
 
-		//Checks whether route is unique
+		//Checks if there's already a route using the same arguments
         private function checkIfRouteIsUnique($parametersArray, $requestType)
-        {
-            //Checks if there's already a route using the same arguments
+        {	
             $routes = $this->_routes;
 
-			//Not variable params
-            $clean_parameters = [];
+			//Constant parameters array
+            $newRouteConstantParameters = [];
 
             foreach($parametersArray as $key => $parameter)
             {
-				//If the current param is a variable pushes it to $clean_parameters
+				//If the current param is a variable pushes it to $newRouteConstantParameters
                 if(strpos($parameter, '{') === false)
                 {
-                    $clean_parameters[] = $parameter;
+                    $newRouteConstantParameters[] = $parameter;
                 }
             }
 
-            foreach($routes as $key => $route) 
+            foreach($routes as $key => $currentRoute) 
             {
 				//If existing route has the same quantity of params of the new route:
-                if(count($route["parameters"]) === count($parametersArray))
+                if(count($currentRoute["parameters"]) === count($parametersArray))
                 {
-					$route_clean_parameters = [];
+					$currentRouteConstantParameters = [];
 					
-                    foreach($route["parameters"] as $key => $parameter)
+                    foreach($currentRoute["parameters"] as $key => $parameter)
                     {
                         if(strpos($parameter, '{') === false)
                         {
-							$route_clean_parameters[] = $parameter;
+							$currentRouteConstantParameters[] = $parameter;
                         }
                     }
 					
 					//Checks if not variable params of existing route is the same of the new route
-                    if($route_clean_parameters === $clean_parameters && $route["requestType"] === $requestType)
+                    if($currentRouteConstantParameters === $newRouteConstantParameters && $currentRoute["requestType"] === $requestType)
                     {
 						//If so displays an error
-                        echo "There's another route which already uses the same parameters with the $requestType request type: " . $route["uri"];
+                        echo 'Route error: There\'s another route which already uses the same parameters with the "'.$requestType.'" request type: "'. $currentRoute["uri"].'".';
                         exit;
-                    }
-                    
+                    }  
                 }
-            }
+			}
         }
 
-		//Create a object of params and validates params in the process
-        private function parseParams($parametersArray, $requestType)
+		//Validates route's sintax and params
+        private function validateRouteSintax($parametersArray, $uri)
         {
-            //Creates route parameters array and checks whether the route is valid
-            $parameters = [];
-
-            foreach($parametersArray as $key => $value)
+            foreach($parametersArray as $key => $currentParam)
             {  
-                // Checks whether the informed route structure is valid or not
-                if( (strpos($value, '{') != 0) || 
-                    (strpos($value, '{') === 0 && strpos($value, '}') !== (strlen($value) - 1)) || 
-                    (strpos($value, '{') === 0 && strlen($value) < 3) ||
-                    (strpos($value, '{') === false && strpos($value, '}') !== false) )
+                //Checks whether the informed route structure is valid or not
+                if( 
+					    (strpos($currentParam, '{') != 0) 
+                    ||  (strpos($currentParam, '{') === 0 && strpos($currentParam, '}') !== (strlen($currentParam) - 1))
+                    ||  (strpos($currentParam, '{') === 0 && strlen($currentParam) < 3)
+					||  (strpos($currentParam, '{') === false && strpos($currentParam, '}') !== false) 
+				
+				)
                 {
-                    echo "Error: The route $uri is not valid, check the its syntax";
+                    echo 'Route error: "'.$currentParam.'" seems a variable parameter, but its syntax is not permitted.';
                     exit;
-                }
-                else
-                {
-                    /*
-                        @TODO Work in a new updated explanation 
-                        The parameter will be named with just its name OR "Variable: " + its name; 
-                        When the name of the parameter has "Variable: " in it, the parameter is a variable to be sent when 
-                        requested the route.
-                    */
-                    if(strpos($value, '{') === 0)
-                    {   
-                        //if the parameter has "{" it's a variable parameter and we have to check somethings 
-                        
-                        /*
-                            First we have t check if the previous parameter exists and it's not a variable parameter as well
-                            the routing system requires a route to have a parameter previous a variable parameter:
-                            /{username} -> this is an invalid route
-                            /user_name/{username} -> this is an valid route 
-                        */ 
+				}
+				else
+				{
+					/*
+					 *This block will run if current parameter is a valid syntax variable or a constant parameter
+					*/
 
-                        if(count($parameters) - 1 === -1)
-                        //if the array of parameters has not a previous parameter the informed route is invalid
-                        {
-                            echo "Error: The route $uri is not valid";
-                            exit;
-                        }
-                        else
-                        {
-                            if(false === strrpos($parameters[count($parameters) - 1], "{"))
-                            //if the array of parameters has a previous parameter and it's not a variable parameter then the route is valid
-                            {
-                                $parameters[] = $value;
-                            }
-                            else
-                            {
-                                echo "Error: The route $uri is not valid";
-                                exit;
-                            }
-                        }
+					//If current parameter is a url variable (Eg: /{name}) execute some more validations
+					if(strpos($currentParam, '{') === 0)
+					{
+						
+						if($key === 0)
+						{
+							echo 'Route error: The first route parameter cannot be a variable parameter, "'.$currentParam.'" given.';
+							exit;
+						}
+						
+						if(strpos($parametersArray[$key-1], "{") ===  0)
+						{
+							echo 'Route error: The route cannot have more than one variable for specifier constant parameter, "'. $uri.'" given.';
+							exit;
+						}
 
-                    }
-                    else
-                    {
-                        $parameters[] = $value;
-                    }
-                    
-                }
-
-            }
-
-            return $parameters;
+					}
+				}	
+			}  
         }
-
     }
