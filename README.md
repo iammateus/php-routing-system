@@ -1,1 +1,3 @@
-﻿# A simple easy to use routing system in php
+# RoutingSystem
+
+A small routing system to create friendly urls.
