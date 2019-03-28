@@ -7,10 +7,20 @@
     class Route{
 
         //Routes list
-        private $_routes = [];
+		private $_routes = [];
+
+		public function get($uri, $method)
+		{
+			$this->add($uri, "GET", $method);
+		}
+
+		public function post($uri, $method)
+		{
+			$this->add($uri, "POST", $method);
+		}
 
         //Adds new route
-        public function add($uri, $requestType, $method)
+        private function add($uri, $requestType, $method)
         {
 			//Gets params from URL
 			$parametersArray = $this->getParamsFromURL($uri);
@@ -75,7 +85,7 @@
                         }
                         else
                         {
-							//$this->callExternalClassAction($route["action"], $parameters);
+							$this->callExternalClassAction($route["action"], $parameters);
 
                             exit;
                         }
@@ -99,7 +109,7 @@
         {
             if(empty($uri))
             {
-                echo "The uri: '$uri' is not valid, check its syntax";
+                echo 'Route error: The uri: "'.$uri.'" is not valid, check its syntax';
                 exit;
             }
 
@@ -203,5 +213,22 @@
 					}
 				}	
 			}  
-        }
-    }
+		}
+		
+		//Call external class action
+		private function callExternalClassAction($routeAction, $parameters){
+
+			$routeActionArray = explode("@", $routeAction);
+
+			$classFile = $routeActionArray[0];
+
+			$classMethod = $routeActionArray[1];
+
+			require 'class/'.$classFile.'.php';
+
+			$classObject = new $classFile();
+
+			call_user_func_array([$classObject, $classMethod], $parameters);
+
+		}  
+	}

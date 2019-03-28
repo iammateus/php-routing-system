@@ -7,15 +7,17 @@
     /* Creating route instance */
     $route = new Route();
 
-    $route->add("/", "GET", function(){
+    $route->get("/", function(){
 		include_once("view/home.php");
 	});
     
-    $route->add("/name/{name}/lastname/{lastname}", "GET", function($name, $lastname){
+    $route->get("/name/{name}/lastname/{lastname}", function($name, $lastname){
         echo $name." ".$lastname;
         echo "<br>Age: ".$_GET["age"];
     });
     
-    $route->add("/name/{name}/lastname/{lastname}", "POST", "Post@Store");
-
-   
+    $route->post("user/name/{name}/lastname/{lastname}", "User@show");
+	
+    $route->get("/show-routes", function() use ($route){
+        $route->showRoutes();
+    });

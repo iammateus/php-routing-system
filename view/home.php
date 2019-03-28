@@ -9,7 +9,7 @@
 	</head>
 	<body style="background: #333; color: #FFF;">
 		<h1>Hi, this is Home</h1>
-		<form method="post" action="name/Mateus/lastname/Soares">
+		<form method="post" action="user/name/Mateus/lastname/Soares">
 			<input type="text">
 			<button type="submit">Go</button>
 		</form>
